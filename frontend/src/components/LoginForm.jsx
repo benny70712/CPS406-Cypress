@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from "axios";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const navigate = useNavigate(); // Initialize the navigate function
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,18 +15,17 @@ export default function LoginForm() {
   
     try {
       const response = await axios.post('http://localhost:3000/login', formData);
-  
-      if (response.status === 200) {
-        const message = `Success: ${response.data.success}\nMessage: ${response.data.message}\nData: ${JSON.stringify(response.data.data)}`;
-        alert(message);
-        console.log(response.data);
-      } 
+      const message = `Success: ${response.data.success}\nMessage: ${response.data.message}\nData: ${JSON.stringify(response.data.data)}`;
+      alert(message);
+      localStorage.setItem('token', response.data.token); // Fixed typo: res -> response
+      setToken(response.data.token);
+
+      navigate('/profile')
   
     } catch (error) {
-      console.error("Login failed:", error);
-      // Handle error response safely
-      const message = error.response?.data?.message || "Login failed. Please try again.";
-      alert(`Error: ${message}`);
+      console.error("Login failed:", error)
+      
+      alert(response.data.message)
     }
   };
 

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import cors from "cors"
 
+import jwt from "jsonwebtoken"
 
 
 import { connectDB } from "./config/db.js";
@@ -12,12 +13,14 @@ import User from "./models/user.model.js";
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
-
 
 dotenv.config();
 app.use(cors())
 app.use(express.json()); 
+
+
+const PORT = process.env.PORT || 3000;
+const jwt_secret = process.env.JWT_SECRET;
 
 
 
@@ -54,12 +57,9 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
-        return res.status(200).json({ success: true, message: "Login successful", data: user });
-<<<<<<< HEAD
+        const token = jwt.sign({ name: user.name, email: user.email }, jwt_secret, { expiresIn: '1h' });
 
-
-=======
->>>>>>> 78a4c9c165152658cc1feb0452269032ed18d0bc
+        return res.status(200).json({ success: true, message: "Login successful", data: user , token});
     } catch (error) {
         console.error("Error in login: ", error.message);
         return res.status(500).json({ success: false, message: "Error in login" });
@@ -95,6 +95,21 @@ app.post("/register", async (req, res) => {
     }
 });
 
+
+app.get('/profile', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+  
+    const token = authHeader.split(' ')[1];
+    try {
+      const { email } = jwt.verify(token, jwt_secret);
+      const user = await User.findOne({ email });
+
+      res.status(200).json(user);
+    } catch (err) {
+      res.sendStatus(403);
+    }
+  });
 
 
 
