@@ -55,6 +55,11 @@ app.post("/login", async (req, res) => {
         }
 
         return res.status(200).json({ success: true, message: "Login successful", data: user });
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 78a4c9c165152658cc1feb0452269032ed18d0bc
     } catch (error) {
         console.error("Error in login: ", error.message);
         return res.status(500).json({ success: false, message: "Error in login" });
