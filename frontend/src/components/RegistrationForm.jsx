@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Link } from 'react-router-dom';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -9,16 +14,46 @@ export default function RegisterForm() {
     password: "",
   });
 
+  const navigate = useNavigate();
+
+
+  const notifySuccess = (message) => toast.success(message, {
+    position: "top-center",
+    autoClose: 1000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    transition: Bounce,
+    });
+
+
+    const notifyError = (message) => toast.error(message, {
+      position: "top-center",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+      });
+
+
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3000/register', formData);
-      const message = `Success: ${response.data.success}\nMessage: ${response.data.message}\nData: ${response.data.data}`;
-      alert(message);
-      console.log(response.data);
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000); 
+      notifySuccess("Registeration successful")
+
     } catch (error) {
-      console.error(error);
-      alert("Registration failed. Check console for more info.");
+      notifyError("Registeration failed")
     }
   };
 
@@ -73,6 +108,23 @@ export default function RegisterForm() {
           </Link>
         </p>
       </div>
+
+
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
+
+
     </div>
   );
 }

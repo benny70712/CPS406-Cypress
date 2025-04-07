@@ -1,12 +1,40 @@
 import { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const navigate = useNavigate(); // Initialize the navigate function
+  const navigate = useNavigate();
+
+
+  const notifySuccess = (message) => toast.success(message, {
+    position: "top-center",
+    autoClose: 1000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    transition: Bounce,
+    });
+
+
+    const notifyError = (message) => toast.error(message, {
+      position: "top-center",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
 
 
   const handleSubmit = async (e) => {
@@ -15,17 +43,17 @@ export default function LoginForm() {
   
     try {
       const response = await axios.post('http://localhost:3000/login', formData);
-      const message = `Success: ${response.data.success}\nMessage: ${response.data.message}\nData: ${JSON.stringify(response.data.data)}`;
-      alert(message);
       localStorage.setItem('token', response.data.token); // Fixed typo: res -> response
       setToken(response.data.token);
 
-      navigate('/profile')
+      setTimeout(() => {
+        navigate('/profile');
+      }, 1500); 
+      notifySuccess('Login Successful')
+      
   
     } catch (error) {
-      console.error("Login failed:", error)
-      
-      alert(response.data.message)
+      notifyError("Invalid Credentials")
     }
   };
 
@@ -64,6 +92,23 @@ export default function LoginForm() {
           </Link>
         </p>
       </div>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
+
+
+
     </div>
   );
 }
