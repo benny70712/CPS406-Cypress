@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import axios from 'axios';
 
 const containerStyle = {
   width: '100%',
@@ -20,6 +21,8 @@ function GoogleMapReport() {
     category: '',
     address: ''
   });
+
+  const token = localStorage.getItem('token');
 
   const handleMapClick = async (event) => {
     const lat = event.latLng.lat();
@@ -56,15 +59,37 @@ function GoogleMapReport() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    
     const issue = {
       ...formData,
       location: selectedPosition
     };
 
+    const reportIsuue = async (issue) => {
+      try {
+        const res = await axios.post(
+          'http://localhost:3000/report-issues',
+          issue, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        console.log(res.data)
+        
+      } catch (error) {
+        alert('Error in submitting issue');
+      }
+    }
+
+    reportIsuue(issue)
+
     console.log('Submitting issue:', issue);
 
-    setFormVisible(false);
+    setFormVisible(true);
     setFormData({
       title: '',
       description: '',
