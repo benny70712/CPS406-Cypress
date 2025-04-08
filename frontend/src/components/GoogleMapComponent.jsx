@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 const containerStyle = {
@@ -11,6 +13,33 @@ const defaultCenter = {
   lat: 43.65107,
   lng: -79.347015
 };
+
+
+
+const notifySuccess = (message) => toast.success(message, {
+  position: "top-center",
+  autoClose: 500,
+  hideProgressBar: false,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+  transition: Bounce,
+  });
+
+
+  const notifyError = (message) => toast.error(message, {
+    position: "top-center",
+    autoClose: 500,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    transition: Bounce,
+  });
 
 function GoogleMapReport() {
   const [selectedPosition, setSelectedPosition] = useState(null);
@@ -78,10 +107,10 @@ function GoogleMapReport() {
           }
         );
 
-        console.log(res.data)
+        notifySuccess("Report submitted successfully")
         
       } catch (error) {
-        alert('Error in submitting issue');
+        notifyError("Error in submitting report")
       }
     }
 
@@ -173,6 +202,21 @@ function GoogleMapReport() {
           )}
         </div>
       </div>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
+
     </div>
   );
 }

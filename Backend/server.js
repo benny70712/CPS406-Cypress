@@ -150,6 +150,30 @@ app.post('/report-issues', async (req, res) => {
 });
 
 
+app.get('/get-profile-data', async (req, res) => {
+
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+  
+    const token = authHeader.split(' ')[1];
+    try {
+        const { email } = jwt.verify(token, jwt_secret);
+        const user = await User.findOne({ email });
+        const issues = await Issue.find({ userId: user._id });
+
+        return res.status(200).json({ success: true, message: "Login successful", data: {user, issues}});
+        
+    
+    } catch (error) {
+        console.log("Error in adding issue report to DB\n", error.message);
+        return res.status(500).json({ success: false, message: "Error in getting profile data", data: null }); 
+    }
+
+
+});
+
+
 
 
 app.listen(PORT, () => {

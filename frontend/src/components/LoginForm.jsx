@@ -13,7 +13,7 @@ export default function LoginForm() {
 
   const notifySuccess = (message) => toast.success(message, {
     position: "top-center",
-    autoClose: 1000,
+    autoClose: 500,
     hideProgressBar: false,
     closeOnClick: false,
     pauseOnHover: true,
@@ -26,7 +26,7 @@ export default function LoginForm() {
 
     const notifyError = (message) => toast.error(message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 500,
       hideProgressBar: false,
       closeOnClick: false,
       pauseOnHover: true,
@@ -95,7 +95,7 @@ export default function LoginForm() {
 
       <ToastContainer
         position="top-center"
-        autoClose={1000}
+        autoClose={500}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick={false}
