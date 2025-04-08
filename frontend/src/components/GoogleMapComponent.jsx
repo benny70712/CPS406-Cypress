@@ -6,25 +6,45 @@ const containerStyle = {
   height: '500px'
 };
 
-const center = {
+const defaultCenter = {
   lat: 43.65107,
   lng: -79.347015
 };
 
 function GoogleMapReport() {
   const [selectedPosition, setSelectedPosition] = useState(null);
-  const [formVisible, setFormVisible] = useState(false);
+  const [formVisible, setFormVisible] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: ''
+    category: '',
+    address: ''
   });
 
-  const handleMapClick = (event) => {
+  const handleMapClick = async (event) => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
-    setSelectedPosition({ lat, lng });
-    setFormVisible(true); // Show form after click
+    const position = { lat, lng };
+
+    setSelectedPosition(position);
+    setFormVisible(true);
+
+    // Reverse geocode to get address
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyD-65OSnFKGlxU1gGiNKfYo43SkZf7m6Fo`
+      );
+      const data = await response.json();
+
+      const formattedAddress = data.results[0]?.formatted_address || 'Unknown address';
+
+      setFormData((prev) => ({
+        ...prev,
+        address: formattedAddress
+      }));
+    } catch (error) {
+      console.error('Error fetching address:', error);
+    }
   };
 
   const handleChange = (e) => {
@@ -42,76 +62,93 @@ function GoogleMapReport() {
       location: selectedPosition
     };
 
-    // For now just log it. You can send this to your Express backend.
     console.log('Submitting issue:', issue);
 
-    // Reset
     setFormVisible(false);
-    setFormData({ title: '', description: '', category: '' });
+    setFormData({
+      title: '',
+      description: '',
+      category: '',
+      address: ''
+    });
     setSelectedPosition(null);
   };
 
   return (
-    <>
-      <LoadScript googleMapsApiKey="AIzaSyD-65OSnFKGlxU1gGiNKfYo43SkZf7m6Fo">
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={center}
-          zoom={12}
-          onClick={handleMapClick}
-        >
-          {selectedPosition && <Marker position={selectedPosition} />}
-        </GoogleMap>
-      </LoadScript>
-
-      {formVisible && (
-        <div style={{
-          position: 'absolute',
-          top: '60px',
-          right: '20px',
-          background: 'white',
-          padding: '20px',
-          border: '1px solid #ccc',
-          zIndex: 1000,
-          width: '300px',
-          borderRadius: '10px'
-        }}>
-          <h3>Report an Issue</h3>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="title"
-              placeholder="Issue Title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', marginBottom: '10px' }}
-            />
-            <textarea
-              name="description"
-              placeholder="Description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', marginBottom: '10px' }}
-            />
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-              style={{ width: '100%', marginBottom: '10px' }}
-            >
-              <option value="">Select Category</option>
-              <option value="Pothole">Pothole</option>
-              <option value="Broken Light">Broken Light</option>
-              <option value="Graffiti">Graffiti</option>
-            </select>
-            <button type="submit">Submit Report</button>
-          </form>
+    <div className="p-4 bg-gray-100 min-h-screen">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Map Container with border */}
+        <div className="w-full lg:w-1/2">
+          <div className="shadow-lg rounded-lg overflow-hidden border border-gray-200 h-full">
+            <LoadScript googleMapsApiKey="AIzaSyD-65OSnFKGlxU1gGiNKfYo43SkZf7m6Fo">
+              <GoogleMap
+                mapContainerStyle={{ width: '100%', height: '500px' }}
+                center={defaultCenter}
+                zoom={13}
+                onClick={handleMapClick}
+              >
+                {selectedPosition && <Marker position={selectedPosition} />}
+              </GoogleMap>
+            </LoadScript>
+          </div>
         </div>
-      )}
-    </>
+  
+        {/* Form Container */}
+        <div className="w-full lg:w-1/2">
+          {formVisible && (
+            <div className="shadow-lg rounded-lg overflow-hidden border border-gray-200 bg-white p-6 h-full">
+              <h3 className="text-2xl font-bold mb-4 text-blue-600">Report an Issue</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Issue Title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border rounded"
+                />
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border rounded h-32"
+                />
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Select Category</option>
+                  <option value="Violent Crimes">Violent Crimes</option>
+                  <option value="Property Crimes">Property Crimes</option>
+                  <option value="White-Collar Crimes">White-Collar Crimes</option>
+                  <option value="Organized Crimes">Organized Crimes</option>
+                  <option value="Victimless or Consensual Crimes">Victimless or Consensual Crimes</option>
+                </select>
+  
+                {formData.address && (
+                  <p className="text-gray-600">
+                    <strong>Address:</strong> {formData.address}
+                  </p>
+                )}
+  
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Submit Report
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

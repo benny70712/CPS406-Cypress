@@ -59,7 +59,7 @@ const IndexPage = () => {
           <main className="container mx-auto p-6">
             <h2 className="text-2xl font-bold mb-4">Welcome, {user.name}!</h2>
             <p className="mb-6 text-gray-700">Here's your map view:</p>
-            <div className="shadow-lg rounded-lg overflow-hidden border border-gray-200">
+            <div className="">
               <GoogleMapComponent />
             </div>
           </main>
