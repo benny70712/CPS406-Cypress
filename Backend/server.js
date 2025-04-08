@@ -4,6 +4,9 @@ import bcrypt from "bcrypt";
 import cors from "cors"
 import jwt from "jsonwebtoken"
 
+import jwt from "jsonwebtoken"
+
+
 import { connectDB } from "./config/db.js";
 import User from "./models/user.model.js";
 
@@ -15,8 +18,6 @@ app.use(express.json());
 
 
 
-const PORT = process.env.PORT || 3000;
-
 
 
 const jwt_key = process.env.JWT_KEY
@@ -26,6 +27,10 @@ const jwt_key = process.env.JWT_KEY
 
 
 
+
+
+const PORT = process.env.PORT || 3000;
+const jwt_secret = process.env.JWT_SECRET;
 
 
 
@@ -62,9 +67,15 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
+<<<<<<< HEAD
         const token = jwt.sign({ name: "Kyaw", email: "kyawlin.tun@torontomu.ca" }, jwt_key, { expiresIn: '1h' });
 
         return res.status(200).json({ success: true, message: "Login successful", data: user, token: token});
+=======
+        const token = jwt.sign({ name: user.name, email: user.email }, jwt_secret, { expiresIn: '1h' });
+
+        return res.status(200).json({ success: true, message: "Login successful", data: user , token});
+>>>>>>> origin
     } catch (error) {
         console.error("Error in login: ", error.message);
         return res.status(500).json({ success: false, message: "Error in login" });
@@ -100,6 +111,21 @@ app.post("/register", async (req, res) => {
     }
 });
 
+
+app.get('/profile', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+  
+    const token = authHeader.split(' ')[1];
+    try {
+      const { email } = jwt.verify(token, jwt_secret);
+      const user = await User.findOne({ email });
+
+      res.status(200).json(user);
+    } catch (err) {
+      res.sendStatus(403);
+    }
+  });
 
 
 
