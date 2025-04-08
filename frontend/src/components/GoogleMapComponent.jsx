@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const containerStyle = {
   width: '100%',
@@ -11,6 +14,33 @@ const defaultCenter = {
   lng: -79.347015
 };
 
+
+
+const notifySuccess = (message) => toast.success(message, {
+  position: "top-center",
+  autoClose: 500,
+  hideProgressBar: false,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+  transition: Bounce,
+  });
+
+
+  const notifyError = (message) => toast.error(message, {
+    position: "top-center",
+    autoClose: 500,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    transition: Bounce,
+  });
+
 function GoogleMapReport() {
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [formVisible, setFormVisible] = useState(true);
@@ -20,6 +50,8 @@ function GoogleMapReport() {
     category: '',
     address: ''
   });
+
+  const token = localStorage.getItem('token');
 
   const handleMapClick = async (event) => {
     const lat = event.latLng.lat();
@@ -56,15 +88,37 @@ function GoogleMapReport() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    
     const issue = {
       ...formData,
       location: selectedPosition
     };
 
+    const reportIsuue = async (issue) => {
+      try {
+        const res = await axios.post(
+          'http://localhost:3000/report-issues',
+          issue, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        notifySuccess("Report submitted successfully")
+        
+      } catch (error) {
+        notifyError("Error in submitting report")
+      }
+    }
+
+    reportIsuue(issue)
+
     console.log('Submitting issue:', issue);
 
-    setFormVisible(false);
+    setFormVisible(true);
     setFormData({
       title: '',
       description: '',
@@ -148,6 +202,21 @@ function GoogleMapReport() {
           )}
         </div>
       </div>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
+
     </div>
   );
 }

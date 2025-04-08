@@ -2,21 +2,21 @@ import express from "express";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import cors from "cors"
-
 import jwt from "jsonwebtoken"
 
 
 import { connectDB } from "./config/db.js";
 import User from "./models/user.model.js";
-
-
+import Issue from "./models/issue.model.js";
 
 const app = express();
-
-
 dotenv.config();
 app.use(cors())
 app.use(express.json()); 
+
+
+
+const jwt_key = process.env.JWT_KEY
 
 
 const PORT = process.env.PORT || 3000;
@@ -57,9 +57,11 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
+
         const token = jwt.sign({ name: user.name, email: user.email }, jwt_secret, { expiresIn: '1h' });
 
         return res.status(200).json({ success: true, message: "Login successful", data: user , token});
+
     } catch (error) {
         console.error("Error in login: ", error.message);
         return res.status(500).json({ success: false, message: "Error in login" });
@@ -110,6 +112,67 @@ app.get('/profile', async (req, res) => {
       res.sendStatus(403);
     }
   });
+
+
+
+app.post('/report-issues', async (req, res) => {
+
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+  
+    const token = authHeader.split(' ')[1];
+    try {
+        const { email } = jwt.verify(token, jwt_secret);
+        const user = await User.findOne({ email });
+        const { title, description, category, address, location } = req.body;
+
+        const issue = new Issue({
+          title,
+          description,
+          category,
+          address,
+          location,
+          userId: user.id
+        });
+      
+        await issue.save()
+        const data = { user, issue }
+        return res.status(201).json({ success: true, message: "Registeration successful", data: data});
+
+    
+    } catch (error) {
+        console.log("Error in adding issue report to DB\n", error.message);
+        return res.status(500).json({ success: false, message: "Error in reporting issue", data: null }); 
+    }
+
+
+});
+
+
+app.get('/get-profile-data', async (req, res) => {
+
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+  
+    const token = authHeader.split(' ')[1];
+    try {
+        const { email } = jwt.verify(token, jwt_secret);
+        const user = await User.findOne({ email });
+        const issues = await Issue.find({ userId: user._id });
+
+        return res.status(200).json({ success: true, message: "Login successful", data: {user, issues}});
+        
+    
+    } catch (error) {
+        console.log("Error in adding issue report to DB\n", error.message);
+        return res.status(500).json({ success: false, message: "Error in getting profile data", data: null }); 
+    }
+
+
+});
+
 
 
 
