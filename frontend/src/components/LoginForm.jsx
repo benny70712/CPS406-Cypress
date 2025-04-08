@@ -47,7 +47,7 @@ export default function LoginForm() {
       setToken(response.data.token);
 
       setTimeout(() => {
-        navigate('/profile');
+        navigate('/index'); // Redirect to the index page after successful login
       }, 1500); 
       notifySuccess('Login Successful')
       
