@@ -36,15 +36,13 @@ Cypress allows Toronto residents to easily report issues like potholes, streetli
     ```
 
 3. Install dependencies and run backend:
-
     ```bash
     cd Backend
     npm install
     npm run dev
     ```
 
-  4. Install dependencies and run frontend:
-
+4. Install dependencies and run frontend:
     ```bash
     cd frontend
     npm install
