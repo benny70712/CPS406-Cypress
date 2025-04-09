@@ -31,8 +31,8 @@ const issueSchema = new mongoose.Schema(
 
     status: {
         type: String,
-        enum: ["Not Completed", "Ongoing", "Completed"],
-        default: "Not Completed", 
+        enum: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
+        default: "Pending", 
         required: true,
     },
 
