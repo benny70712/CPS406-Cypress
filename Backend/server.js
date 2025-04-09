@@ -199,6 +199,49 @@ app.get('/get-issues', async (req, res) => {
 });
 
 
+// PUT endpoint to update status of a specific issue
+app.put('/update-status/:id', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+  
+    const token = authHeader.split(' ')[1];
+    try {
+      const { email } = jwt.verify(token, jwt_secret);
+  
+      // Get new status from request body
+      const { status } = req.body;
+      if (!status) return res.status(400).json({ success: false, message: 'Status is required' });
+  
+      // Find and update the issue
+      const updatedIssue = await Issue.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true }
+      );
+  
+      if (!updatedIssue) {
+        return res.status(404).json({ success: false, message: 'Issue not found' });
+      }
+
+      console.log("succssfil")
+  
+      return res.status(200).json({
+        success: true,
+        message: 'Status updated successfully',
+        data: updatedIssue,
+      });
+  
+    } catch (error) {
+      console.error('Error updating issue status:', error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error while updating issue status',
+        data: null,
+      });
+    }
+  });
+  
+
 
 
 app.listen(PORT, () => {
