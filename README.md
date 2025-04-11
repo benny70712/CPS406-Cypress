@@ -35,20 +35,38 @@ Cypress allows Toronto residents to easily report issues like potholes, streetli
     cd CPS406-Cypress
     ```
 
-3. Install dependencies and run backend:
+3. Set up environment variables for the backend:
+
+    - The `.env.example` file is located in the `Backend` folder.
+    - Copy it and rename it to `.env`:
+
     ```bash
     cd Backend
+    cp .env.example .env
+    ```
+
+4. Open the new `.env` file and provide the required values:
+
+    ```env
+    MONGO_URI=your_mongodb_connection_string
+    JWT_SECRET=your_jwt_secret_key
+    ```
+
+    > 📝 Make sure `MONGO_URI` is a valid MongoDB connection string and `JWT_SECRET` is a secure string used for token authentication.
+
+5. Install dependencies and run the backend:
+
+    ```bash
     npm install
     npm run dev
     ```
 
-4. Install dependencies and run frontend:
+6. Open a new terminal window and start the frontend:
+
     ```bash
-    cd frontend
+    cd ../frontend
     npm install
     npm run dev
     ```
 
 The application will be available at `http://localhost:5173`.
-
-
